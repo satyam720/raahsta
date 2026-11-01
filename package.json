@@ -34,7 +34,7 @@
   "name": "natours",
   "version": "1.0.0",
   "main": "app.js",
-  "bundle": "public/js/bundle.js",
+  "bundle": "public/build/bundle.js",
   "targets": {
     "bundle": {
       "context": "browser",
@@ -46,7 +46,7 @@
     "start": "nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
-    "watch:js": "parcel watch public/js/index.js --target bundle --no-cache --no-hmr"
+    "watch:js": "cross-env TEMP=. TMP=. parcel watch public/js/index.js --target bundle --no-cache --no-hmr"
   },
   "type": "module",
   "keywords": [],
