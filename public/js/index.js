@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime';
 import { login, logout } from './login.js';
 import { initMap } from './mapbox.js';
 import { updateSettings } from './updateSetting.js';
+import { initClientRzrPay, requestOrder } from './razorPay.js';
 
 //DOM elems
 const mapContainer = document.getElementById('map');
@@ -10,6 +11,7 @@ const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
+const bookTourBtn = document.getElementById('book-tour');
 
 if (mapContainer) {
   try {
@@ -59,5 +61,14 @@ if (userPasswordForm) {
     document.getElementById('password').value = '';
     document.getElementById('password-confirm').value = '';
     document.querySelector('.btn--save-password').textContent = 'SAVE PASSWORD';
+  });
+}
+
+if (bookTourBtn) {
+  bookTourBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    bookTourBtn.disabled = true;
+    await requestOrder(bookTourBtn);
+    
   });
 }

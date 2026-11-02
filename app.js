@@ -18,6 +18,7 @@ import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import reviewRouter from './routes/reviewRoute.js';
 import viewRouter from './routes/viewRoutes.js';
+import bookingRouter from './routes/bookingRoute.js'
 
 const app = express();
 app.set('view engine', 'pug');
@@ -31,13 +32,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 // security http headers
 app.use(
   helmet({
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     contentSecurityPolicy: {
       directives: {
-        'script-src': ["'self'", 'https://api.mapbox.com', 'https://cdn.jsdelivr.net'],
-        'connect-src': ["'self'", 'https://*.mapbox.com', 'https://cdn.jsdelivr.net'],
+        'script-src': ["'self'", 'https://api.mapbox.com', 'https://cdn.jsdelivr.net', 'https://api.razorpay.com', "https://checkout.razorpay.com", "https://cdn.razorpay.com"],
+        'connect-src': [
+          "'self'",
+          'https://*.mapbox.com',
+          'https://cdn.jsdelivr.net',
+          'https://api.razorpay.com',
+          'https://lumberjack.razorpay.com',
+        ],
         'img-src': ["'self'", 'data:', 'blob:', 'https://*.mapbox.com' ],
         'worker-src': ["'self'", 'blob:'],
         'child-src': ["'self'", 'blob:'],
+        'frame-src': ["'self'", 'https://api.razorpay.com'],
       },
     },
   }),
@@ -147,6 +156,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => {
   res.sendStatus(204);

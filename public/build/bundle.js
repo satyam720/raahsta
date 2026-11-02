@@ -213,12 +213,14 @@ var _runtime = require("regenerator-runtime/runtime");
 var _loginJs = require("./login.js");
 var _mapboxJs = require("./mapbox.js");
 var _updateSettingJs = require("./updateSetting.js");
+var _razorPayJs = require("./razorPay.js");
 //DOM elems
 const mapContainer = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
+const bookTourBtn = document.getElementById('book-tour');
 if (mapContainer) try {
     (0, _mapboxJs.initMap)(mapContainer);
 } catch (error) {
@@ -256,8 +258,13 @@ if (userPasswordForm) userPasswordForm.addEventListener('submit', async (e)=>{
     document.getElementById('password-confirm').value = '';
     document.querySelector('.btn--save-password').textContent = 'SAVE PASSWORD';
 });
+if (bookTourBtn) bookTourBtn.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    bookTourBtn.disabled = true;
+    await (0, _razorPayJs.requestOrder)(bookTourBtn);
+});
 
-},{"core-js/modules/web.immediate.js":"bzsBv","regenerator-runtime/runtime":"f6ot0","./login.js":"baTDu","./mapbox.js":"btId7","./updateSetting.js":"3d1Ox"}],"bzsBv":[function(require,module,exports,__globalThis) {
+},{"core-js/modules/web.immediate.js":"bzsBv","regenerator-runtime/runtime":"f6ot0","./login.js":"baTDu","./mapbox.js":"btId7","./updateSetting.js":"3d1Ox","./razorPay.js":"fpv5n"}],"bzsBv":[function(require,module,exports,__globalThis) {
 'use strict';
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("52e9b3eefbbce1ed");
@@ -7271,6 +7278,68 @@ const updateSettings = async (data, type)=>{
     }
 };
 
-},{"./alerts":"bDKEb","axios":"kooH4","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}]},["8xXkV"], "8xXkV", "parcelRequire11c7", {})
+},{"./alerts":"bDKEb","axios":"kooH4","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"fpv5n":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "initClientRzrPay", ()=>initClientRzrPay);
+parcelHelpers.export(exports, "requestOrder", ()=>requestOrder);
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+const initClientRzrPay = function(data) {
+    var options = {
+        key: data.key,
+        order_id: data.order.id,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: 'Natours',
+        description: data.tour.name,
+        image: '/img/logo-green.png',
+        prefill: {
+            name: data.customer.name,
+            email: data.customer.email
+        },
+        handler: async function(payment) {
+            try {
+                const result = await (0, _axiosDefault.default).post('/api/v1/bookings/verify-payment', payment);
+                if (result.data.status === 'success') window.location.assign('/');
+            } catch (error) {
+                alert(error.response?.data?.message || 'Unable to verify payment. Please contact support.');
+            }
+        },
+        modal: {
+            ondismiss () {
+                window.location.assign(`/tour/${data.tour.slug}`);
+            }
+        },
+        theme: {
+            color: '#55c57a'
+        }
+    };
+    const checkout = new window.Razorpay(options);
+    checkout.on('payment.failed', ({ error })=>{
+        console.error('Razorpay payment failed:', {
+            code: error.code,
+            description: error.description,
+            source: error.source,
+            step: error.step,
+            reason: error.reason
+        });
+    });
+    return checkout;
+};
+const requestOrder = async function(bookTourBtn) {
+    try {
+        const tourId = bookTourBtn.dataset.tourId;
+        const { data } = await (0, _axiosDefault.default).get(`/api/v1/bookings/checkout-session/${tourId}`);
+        const checkout = initClientRzrPay(data);
+        checkout.open();
+    } catch (error) {
+        alert(error.response?.data?.message || 'Unable to open checkout');
+    } finally{
+        bookTourBtn.disabled = false;
+    }
+};
+
+},{"axios":"kooH4","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}]},["8xXkV"], "8xXkV", "parcelRequire11c7", {})
 
 //# sourceMappingURL=bundle.js.map
