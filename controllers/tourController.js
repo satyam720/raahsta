@@ -1,4 +1,5 @@
-﻿import Tour from '../models/tourModels.js';
+﻿import multer from 'multer';
+import Tour from '../models/tourModels.js';
 import AppError from '../Utils/appError.js';
 import { catchAsync } from '../Utils/catchAsync.js';
 import {
@@ -8,6 +9,7 @@ import {
   getOne,
   updateOne,
 } from './handlerFactory.js';
+import sharp from 'sharp';
 
 const aliasTopTours = (req, res, next) => {
   Object.defineProperty(req, 'query', {
@@ -21,6 +23,56 @@ const aliasTopTours = (req, res, next) => {
 
   next();
 };
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an Image! Please upload only images', 400), false);
+  }
+};
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+const uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+
+const resizeTourImages = catchAsync(async (req, res, next) => {
+  console.log(req.files);
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // cover image
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  // images
+  req.body.images = [];
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const fileName = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${fileName}`);
+
+      req.body.images.push(fileName);
+    }),
+  );
+
+  next();
+});
 
 const getAllTours = getAll(Tour);
 const getTour = getOne(Tour, { path: 'reviews' });
@@ -131,11 +183,11 @@ const getToursWithin = catchAsync(async function (req, res, next) {
   });
 });
 
-const getDistances = catchAsync(async function(req, res, next) {
+const getDistances = catchAsync(async function (req, res, next) {
   const { latlng, unit } = req.params;
   const [lat, lng] = latlng.split(',');
 
-  const multiplier = unit === 'mi' ? 0.000621371: 0.001;
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
   if (!lat || !lng) {
     next(
       new AppError(
@@ -150,18 +202,18 @@ const getDistances = catchAsync(async function(req, res, next) {
       $geoNear: {
         near: {
           type: 'Point',
-          coordinates: [lng * 1, lat * 1]
+          coordinates: [lng * 1, lat * 1],
         },
         distanceField: 'distance',
-        distanceMultiplier: multiplier
-      }
+        distanceMultiplier: multiplier,
+      },
     },
     {
       $project: {
         distance: 1,
-        name: 1
-      }
-    }
+        name: 1,
+      },
+    },
   ]);
 
   res.status(200).json({
@@ -170,7 +222,7 @@ const getDistances = catchAsync(async function(req, res, next) {
       data: distances,
     },
   });
-})
+});
 
 export {
   getAllTours,
@@ -182,5 +234,7 @@ export {
   getTourStats,
   getMonthlyPlan,
   getToursWithin,
-  getDistances
+  getDistances,
+  uploadTourImages,
+  resizeTourImages,
 };

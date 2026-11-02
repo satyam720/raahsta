@@ -11,6 +11,8 @@ import {
   getMonthlyPlan,
   getToursWithin,
   getDistances,
+  uploadTourImages,
+  resizeTourImages,
 } from '../controllers/tourController.js';
 import { protect, restrictTo } from '../controllers/authController.js';
 
@@ -36,7 +38,7 @@ router
   .route('/tours-within/:distance/center/:latlng/unit/:unit')
   .get(getToursWithin);
 
-router.route('/distances/:latlng/unit/:unit').get(getDistances)
+router.route('/distances/:latlng/unit/:unit').get(getDistances);
 
 router
   .route('/')
@@ -45,7 +47,13 @@ router
 router
   .route('/:id')
   .get(getTour)
-  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
+  .patch(
+    protect,
+    restrictTo('admin', 'lead-guide'),
+    uploadTourImages,
+    resizeTourImages,
+    updateTour,
+  )
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 // POST /tour/234fad4/reviews
