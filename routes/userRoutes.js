@@ -1,4 +1,5 @@
 ﻿import express from 'express';
+import multer from 'multer';
 import {
   getAllUsers,
   createUser,
@@ -8,6 +9,8 @@ import {
   updateMe,
   deleteMe,
   getMe,
+  uploadUserPhoto,
+  resizeUserPhoto,
 } from '../controllers/userController.js';
 import {
   forgotPassword,
@@ -20,6 +23,8 @@ import {
   updatePassword,
 } from '../controllers/authController.js';
 
+
+
 const router = express.Router();
 router.post('/signup', signup);
 router.post('/login', login);
@@ -31,7 +36,7 @@ router.patch('/resetPassword/:token', resetPassword);
 router.use(protect);
 router.patch('/updatePassword', updatePassword);
 router.get('/me', getMe, getUser);
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 
 // restrict following actions to only admin
