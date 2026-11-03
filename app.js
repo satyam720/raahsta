@@ -7,7 +7,7 @@ import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { uploadRoot, usesCloudinary, cloudinaryImageUrl } from './Utils/uploads.js';
-
+import cors from 'cors';
 import { fileURLToPath } from 'node:url';
 import path, { dirname } from 'node:path';
 import AppError from './Utils/appError.js';
@@ -31,6 +31,8 @@ app.set('query parser', 'extended');
 // Global Middleware
 // serving static files
 // security http headers
+app.use(cors());
+app.options('*', cors());
 app.use(
   helmet({
     crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
