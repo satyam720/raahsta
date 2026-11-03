@@ -32,7 +32,6 @@ app.set('query parser', 'extended');
 // serving static files
 // security http headers
 app.use(cors());
-app.options('*', cors());
 app.use(
   helmet({
     crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },

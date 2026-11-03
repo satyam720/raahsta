@@ -41,6 +41,23 @@ test('hosting readiness and persistent image storage', async (t) => {
     assert.equal(trust('127.0.0.1', 1), false);
   });
 
+  await t.test('global CORS handles preflight for root and API paths', async () => {
+    for (const route of ['/', '/api/v1/bookings/verify-payment']) {
+      const response = await fetch(`${base}${route}`, {
+        method: 'OPTIONS',
+        headers: {
+          Origin: 'https://example.com',
+          'Access-Control-Request-Method': 'POST',
+          'Access-Control-Request-Headers': 'content-type',
+        },
+      });
+      assert.equal(response.status, 204);
+      assert.equal(response.headers.get('access-control-allow-origin'), '*');
+      assert.match(response.headers.get('access-control-allow-methods'), /POST/);
+      assert.equal(response.headers.get('access-control-allow-headers'), 'content-type');
+    }
+  });
+
   await t.test('photo processing writes to upload storage and serves the existing URL', async () => {
     const buffer = await sharp({ create: { width: 4, height: 4, channels: 3, background: '#28a879' } }).png().toBuffer();
     const req = { file: { buffer }, user: { id: 'hosting-test' } };
