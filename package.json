@@ -29,7 +29,6 @@
     "pug": "^3.0.4",
     "razorpay": "^2.9.8",
     "regenerator-runtime": "^0.14.1",
-    "reslint": "^1.0.1",
     "sanitize-html": "^2.17.5",
     "sharp": "^0.35.5",
     "slugify": "^1.6.9",
