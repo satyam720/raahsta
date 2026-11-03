@@ -1,0 +1,48 @@
+# Paid service and disk: retains uploads and supports the existing Brevo SMTP transport.
+services:
+  - type: web
+    name: raahsta
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --include=dev && npm run build:js
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: raahsta-uploads
+      mountPath: /var/data/raahsta
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: '24'
+      - key: TRUST_PROXY_HOPS
+        value: '1'
+      - key: UPLOAD_DIR
+        value: /var/data/raahsta
+      - key: DATABASE
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 90d
+      - key: JWT_COOKIE_EXPIRES_IN
+        value: '90'
+      - key: BREVO_HOST
+        value: smtp-relay.brevo.com
+      - key: BREVO_PORT
+        value: '587'
+      - key: BREVO_LOGIN
+        sync: false
+      - key: BREVO_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: MAPBOX_ACCESS_TOKEN
+        sync: false
+      - key: RAZORPAY_TEST_KEY_ID
+        sync: false
+      - key: RAZORPAY_TEST_KEY_SECRET
+        sync: false

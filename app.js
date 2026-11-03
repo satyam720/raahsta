@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import sanitizeHtml from 'sanitize-html';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
+import { uploadRoot } from './Utils/uploads.js';
 
 import { fileURLToPath } from 'node:url';
 import path, { dirname } from 'node:path';
@@ -21,14 +23,13 @@ import viewRouter from './routes/viewRoutes.js';
 import bookingRouter from './routes/bookingRoute.js'
 
 const app = express();
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 0));
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.set('query parser', 'extended');
 
 // Global Middleware
 // serving static files
-app.use(express.static('public'));
-app.use(express.static(path.join(__dirname, 'public')));
 // security http headers
 app.use(
   helmet({
@@ -52,8 +53,16 @@ app.use(
   }),
 );
 
+// Uploaded files override bundled images; unchanged sample images still fall back to public.
+app.use('/img', express.static(uploadRoot));
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/health', (req, res) => {
+  const ready = mongoose.connection.readyState === 1;
+  res.status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'unavailable' });
+});
+
 // development logging
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // limit requests from same api
 const limiter = rateLimit({

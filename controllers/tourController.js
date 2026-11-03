@@ -10,6 +10,7 @@ import {
   updateOne,
 } from './handlerFactory.js';
 import sharp from 'sharp';
+import { uploadPath } from '../Utils/uploads.js';
 
 const aliasTopTours = (req, res, next) => {
   Object.defineProperty(req, 'query', {
@@ -44,7 +45,7 @@ const uploadTourImages = upload.fields([
 ]);
 
 const resizeTourImages = catchAsync(async (req, res, next) => {
-  if (!req.files.imageCover || !req.files.images) return next();
+  if (!req.files?.imageCover || !req.files?.images) return next();
 
   // cover image
   req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
@@ -52,7 +53,7 @@ const resizeTourImages = catchAsync(async (req, res, next) => {
     .resize(2000, 1333)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/img/tours/${req.body.imageCover}`);
+    .toFile(uploadPath('tours', req.body.imageCover));
 
   // images
   req.body.images = [];
@@ -64,7 +65,7 @@ const resizeTourImages = catchAsync(async (req, res, next) => {
         .resize(2000, 1333)
         .toFormat('jpeg')
         .jpeg({ quality: 90 })
-        .toFile(`public/img/tours/${fileName}`);
+        .toFile(uploadPath('tours', fileName));
 
       req.body.images.push(fileName);
     }),
