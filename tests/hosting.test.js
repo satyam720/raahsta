@@ -9,6 +9,7 @@ import sharp from 'sharp';
 test('hosting readiness and persistent image storage', async (t) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'raahsta-hosting-'));
   process.env.UPLOAD_DIR = directory;
+  process.env.UPLOAD_STORAGE = 'local';
   process.env.TRUST_PROXY_HOPS = '1';
   const { default: app } = await import('../app.js');
   const { uploadPath, prepareUploadDirectories } = await import('../Utils/uploads.js');
@@ -61,5 +62,19 @@ test('hosting readiness and persistent image storage', async (t) => {
 
   await t.test('tour processing safely skips a request without uploaded files', async () => {
     await new Promise((resolve, reject) => resizeTourImages({}, {}, err => err ? reject(err) : resolve()));
+  });
+
+  await t.test('cloud images redirect externally while bundled images still load locally', async () => {
+    process.env.UPLOAD_STORAGE = 'cloudinary';
+    process.env.CLOUDINARY_CLOUD_NAME = 'hosting-test';
+    try {
+      const response = await fetch(`${base}/img/tours/tour-abc-123-cover.jpeg`, { redirect: 'manual' });
+      assert.equal(response.status, 302);
+      assert.equal(response.headers.get('location'), 'https://res.cloudinary.com/hosting-test/image/upload/raahsta/tours/tour-abc-123-cover.jpg');
+      assert.match(response.headers.get('content-security-policy'), /https:\/\/res.cloudinary.com/);
+      assert.equal((await fetch(`${base}/img/raahsta-green.svg`)).status, 200);
+    } finally {
+      process.env.UPLOAD_STORAGE = 'local';
+    }
   });
 });

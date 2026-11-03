@@ -4,7 +4,7 @@ import AppError from '../Utils/appError.js';
 import { catchAsync } from '../Utils/catchAsync.js';
 import { deleteOne, getAll, getOne, updateOne } from './handlerFactory.js';
 import sharp from 'sharp';
-import { uploadPath } from '../Utils/uploads.js';
+import { saveImage } from '../Utils/uploads.js';
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -49,11 +49,12 @@ const resizeUserPhoto = catchAsync(async(req, res, next) => {
     return next();
   }
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`
-  await sharp(req.file.buffer)
+  const buffer = await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(uploadPath('users', req.file.filename));
+    .toBuffer();
+  await saveImage(buffer, 'users', req.file.filename);
 
   next();
 });

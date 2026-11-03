@@ -10,7 +10,7 @@ import {
   updateOne,
 } from './handlerFactory.js';
 import sharp from 'sharp';
-import { uploadPath } from '../Utils/uploads.js';
+import { saveImage } from '../Utils/uploads.js';
 
 const aliasTopTours = (req, res, next) => {
   Object.defineProperty(req, 'query', {
@@ -49,11 +49,12 @@ const resizeTourImages = catchAsync(async (req, res, next) => {
 
   // cover image
   req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
-  await sharp(req.files.imageCover[0].buffer)
+  const coverBuffer = await sharp(req.files.imageCover[0].buffer)
     .resize(2000, 1333)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(uploadPath('tours', req.body.imageCover));
+    .toBuffer();
+  await saveImage(coverBuffer, 'tours', req.body.imageCover);
 
   // images
   req.body.images = [];
@@ -61,11 +62,12 @@ const resizeTourImages = catchAsync(async (req, res, next) => {
     req.files.images.map(async (file, i) => {
       const fileName = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
 
-      await sharp(file.buffer)
+      const buffer = await sharp(file.buffer)
         .resize(2000, 1333)
         .toFormat('jpeg')
         .jpeg({ quality: 90 })
-        .toFile(uploadPath('tours', fileName));
+        .toBuffer();
+      await saveImage(buffer, 'tours', fileName);
 
       req.body.images.push(fileName);
     }),

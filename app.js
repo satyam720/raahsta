@@ -6,7 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import { uploadRoot } from './Utils/uploads.js';
+import { uploadRoot, usesCloudinary, cloudinaryImageUrl } from './Utils/uploads.js';
 
 import { fileURLToPath } from 'node:url';
 import path, { dirname } from 'node:path';
@@ -44,7 +44,7 @@ app.use(
           'https://api.razorpay.com',
           'https://lumberjack.razorpay.com',
         ],
-        'img-src': ["'self'", 'data:', 'blob:', 'https://*.mapbox.com' ],
+        'img-src': ["'self'", 'data:', 'blob:', 'https://*.mapbox.com', 'https://res.cloudinary.com' ],
         'worker-src': ["'self'", 'blob:'],
         'child-src': ["'self'", 'blob:'],
         'frame-src': ["'self'", 'https://api.razorpay.com'],
@@ -56,6 +56,12 @@ app.use(
 // Uploaded files override bundled images; unchanged sample images still fall back to public.
 app.use('/img', express.static(uploadRoot));
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/img/:type/:filename', (req, res, next) => {
+  if (!usesCloudinary()) return next();
+  const url = cloudinaryImageUrl(req.params.type, req.params.filename);
+  if (!url) return next();
+  return res.redirect(302, url);
+});
 app.get('/health', (req, res) => {
   const ready = mongoose.connection.readyState === 1;
   res.status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'unavailable' });

@@ -12,8 +12,14 @@ process.env.NODE_ENV ||= 'development';
 const required = ['DATABASE', 'JWT_SECRET', 'JWT_EXPIRES_IN', 'JWT_COOKIE_EXPIRES_IN'];
 if (process.env.DATABASE?.includes('<db_password>')) required.push('DATABASE_PASSWORD');
 if (process.env.NODE_ENV === 'production') {
-  required.push('EMAIL_FROM', 'BREVO_HOST', 'BREVO_PORT', 'BREVO_LOGIN', 'BREVO_PASSWORD',
+  required.push('EMAIL_FROM', 'BREVO_API_KEY',
     'RAZORPAY_TEST_KEY_ID', 'RAZORPAY_TEST_KEY_SECRET', 'MAPBOX_ACCESS_TOKEN');
+}
+if ((process.env.UPLOAD_STORAGE || (process.env.NODE_ENV === 'production' ? 'cloudinary' : 'local')) === 'cloudinary') {
+  required.push('CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET');
+}
+if (process.env.UPLOAD_STORAGE && !['local', 'cloudinary'].includes(process.env.UPLOAD_STORAGE)) {
+  throw new Error('UPLOAD_STORAGE must be local or cloudinary');
 }
 const missing = required.filter(key => !process.env[key]?.trim());
 if (missing.length) throw new Error(`Missing environment variables: ${missing.join(', ')}`);
