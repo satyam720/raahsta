@@ -1,8 +1,10 @@
 import AppError from '../Utils/appError.js';
 import { catchAsync } from '../Utils/catchAsync.js';
 import Tour from '../models/tourModels.js';
+import Booking from '../models/bookingModel.js';
 import Razorpay from 'razorpay';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createOne, getAll, getOne, deleteOne, updateOne } from './handlerFactory.js';
 
 const initRazorPay = function () {
   return new Razorpay({
@@ -86,9 +88,45 @@ export const verifyPayment = catchAsync(async (req, res, next) => {
     return next(new AppError('Payment has not been captured yet. Please check again shortly.', 409));
   }
 
+  // Use the verified order's metadata and price, never client-supplied booking data.
+  // A unique order ID and insert-only update make repeated verification idempotent.
+  try {
+    await Booking.updateOne(
+      { razorpayOrderId: order.id },
+      {
+        $setOnInsert: {
+          tour: order.notes.tourId,
+          user: req.user.id,
+          price: order.amount / 100,
+          currency: order.currency,
+          paid: true,
+          razorpayOrderId: order.id,
+          razorpayPaymentId: payment.id,
+        },
+      },
+      { upsert: true, runValidators: true },
+    );
+  } catch (error) {
+    // Concurrent requests may both try to insert the same order.
+    if (error.code !== 11000) throw error;
+    const existing = await Booking.exists({
+      razorpayOrderId: order.id,
+      razorpayPaymentId: payment.id,
+      user: req.user.id,
+    });
+    if (!existing) throw error;
+  }
+  const booking = await Booking.findOne({ razorpayOrderId: order.id });
+
   res.status(200).json({
     status: 'success',
     message: 'Payment verified successfully',
-    data: { orderId: order.id, paymentId: payment.id, tourId: order.notes.tourId },
+    data: { booking, orderId: order.id, paymentId: payment.id, tourId: order.notes.tourId },
   });
 });
+
+export const getAllBookings = getAll(Booking);
+export const getBooking = getOne(Booking);
+export const createBooking = createOne(Booking);
+export const updateBooking = updateOne(Booking);
+export const deleteBooking = deleteOne(Booking);

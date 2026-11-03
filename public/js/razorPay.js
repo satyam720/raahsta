@@ -6,9 +6,9 @@ export const initClientRzrPay = function (data) {
     order_id: data.order.id,
     amount: data.order.amount,
     currency: data.order.currency,
-    name: 'Natours',
+    name: 'Raahsta',
     description: data.tour.name,
-    image: '/img/logo-green.png',
+    image: '/img/raahsta-checkout.png',
 
     prefill: {
       name: data.customer.name,

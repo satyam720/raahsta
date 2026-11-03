@@ -35,7 +35,7 @@
     "slugify": "^1.6.9",
     "validator": "^13.15.35"
   },
-  "name": "natours",
+  "name": "raahsta",
   "version": "1.0.0",
   "main": "app.js",
   "bundle": "public/build/bundle.js",
@@ -50,7 +50,8 @@
     "start": "nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
-    "watch:js": "cross-env TEMP=. TMP=. parcel watch public/js/index.js --target bundle --no-cache --no-hmr"
+    "watch:js": "cross-env TEMP=. TMP=. parcel watch public/js/index.js --target bundle --no-cache --no-hmr",
+    "build:js": "cross-env TEMP=. TMP=. parcel build public/js/index.js --target bundle --no-cache"
   },
   "type": "module",
   "keywords": [],

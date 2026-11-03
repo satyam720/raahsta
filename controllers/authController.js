@@ -50,7 +50,6 @@ const signup = catchAsync(async (req, res, next) => {
   });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
-  console.log(url);
   await new Email(newUser, url).sendWelcome();
   createSendToken(newUser, 201, res);
 });
@@ -91,7 +90,6 @@ const protect = catchAsync(async (req, res, next) => {
   }
   // 2) verification of the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
   // 3) check if user still exists
   const freshUser = await User.findById(decoded.id);
@@ -142,7 +140,6 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   // 3) send it back as an email
   try {
     const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-    console.log(resetURL, ":::::::::")
     await new Email(user, resetURL).sendPasswordRest();
     res.status(200).json({
       status: 'success',
@@ -191,7 +188,6 @@ const resetPassword = catchAsync(async (req, res, next) => {
 const updatePassword = catchAsync(async (req, res, next) => {
   //1) get the user from collection
   const user = await User.findById(req.user.id).select('+password');
-  console.log(user);
   //2) check if posted password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
     return next(
@@ -221,7 +217,6 @@ const isLoggedIn = catchAsync(async (req, res, next) => {
   }
   // 2) verification of the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
   // 3) check if user still exists
   const user = await User.findById(decoded.id);

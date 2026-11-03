@@ -1,3 +1,4 @@
+import Booking from '../models/bookingModel.js';
 import Tour from '../models/tourModels.js';
 import User from '../models/userModel.js';
 import AppError from '../Utils/appError.js';
@@ -58,6 +59,21 @@ export const updateUserData = async (req, res, next) => {
 
   res.status(200).render('account', {
     title: 'Your Account',
-    user: updatedUser
+    user: updatedUser,
   });
 };
+
+export const getMyTours = catchAsync(async (req, res, next) => {
+  // 1) find all bookings
+  const bookings = await Booking.find({ user: req.user.id }).populate({
+    path: 'tour',
+  });
+
+  const tourIds = bookings.map((booking) => booking.tour._id);
+  const tours = await Tour.find({ _id: { $in: tourIds } });
+
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours,
+  });
+});
