@@ -1,16 +1,30 @@
 extends base
 
 block content
-    main.main
-        .login-form
-            h2.heading-secondary.ma-bt-lg Log into your account
-            form.form.form--login
-                .form__group
-                    label.form__label(for='email') Email address
-                    input#email.form__input(type='email', placeholder='you@example.com', required)
-                .form__group.ma-bt-md
-                    label.form__label(for='password') Password
-                    input#password.form__input(type='password', placeholder='••••••••', required, minlength='8')
-                .form__group
-                    button.btn.btn--green(type='submit') Login
-
+    main.auth-page.shell#main-content
+        .auth-story
+            img(src='/img/tours/tour-1-cover.jpg' alt='An open landscape and a fresh start' width='900' height='1100')
+            .auth-story__copy
+                p.eyebrow The world is still out there.
+                h1 Pick up where
+                    br
+                    em you wandered off.
+                p A familiar face. A brand-new adventure.
+        .auth-panel
+            .login-form
+                p.eyebrow Welcome back, explorer
+                h2 Good to see you.
+                p.form-intro Log in to your next great story.
+                form.form.form--login
+                    .form__group
+                        label.form__label(for='email') Email address
+                        input#email.form__input(type='email' placeholder='you@example.com' autocomplete='email' required)
+                    .form__group
+                        label.form__label(for='password') Password
+                        input#password.form__input(type='password' placeholder='Your password' autocomplete='current-password' required minlength='8')
+                    button.btn.btn--green.btn--full(type='submit') Let’s go
+                        span(aria-hidden='true') ↗
+                p.auth-switch New around here?
+                    | &nbsp;
+                    a(href='/signup') Create an account
+                a.auth-back(href='/') ← Back to exploring

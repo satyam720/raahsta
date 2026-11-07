@@ -49,7 +49,7 @@
     "test": "node --test",
     "start": "node server.js",
     "start:dev": "node --watch server.js",
-    "start:prod": "cross-env NODE_ENV=production node server.js",
+    "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
     "watch:js": "cross-env TEMP=. TMP=. parcel watch public/js/index.js --target bundle --no-cache --no-hmr",
     "build:js": "cross-env TEMP=. TMP=. parcel build public/js/index.js --target bundle --no-cache"

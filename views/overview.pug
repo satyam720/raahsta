@@ -1,47 +1,129 @@
 extends base
 
-block content 
-    main.main 
-        .card-container
-
-            each tour in tours
-                .card
-                    .card__header
-                        .card__picture
-                            .card__picture-overlay &nbsp;
-                            img.card__picture-img(src=`/img/tours/${tour.imageCover}` alt= `${tour.name}`)
-                        h3.heading-tertirary
-                            span= tour.name
-
-                    .card__details
-                        h4.card__sub-heading= `${tour.difficulty} ${tour.duration}-day tour`
-                        p.card__text= tour.summary
-                        .card__data
-                            svg.card__icon
-                                use(xlink:href='/img/icons.svg#icon-map-pin')
-                            span= tour.startLocation.description
-                        .card__data
-                            svg.card__icon
-                                use(xlink:href='/img/icons.svg#icon-calendar')
-                            span= tour.startDates[0].toLocaleString('en-us', {month: 'long', year: 'numeric'})
-                        .card__data
-                            svg.card__icon
-                                use(xlink:href='/img/icons.svg#icon-flag')
-                            span= `${tour.locations.length} stops`
-                        .card__data
-                            svg.card__icon
-                                use(xlink:href='/img/icons.svg#icon-user')
-                            span= `${tour.maxGroupSize} people`
-
-                    .card__footer
-                        p
-                            span.card__footer-value= `$${tour.price}`
-                            | 
-                            span.card__footer-text per person
-                        p.card__ratings
-                            span.card__footer-value= tour.ratingsAverage
-                            | 
-                            span.card__footer-text= `rating (${tour.ratingsQuantity})`
-                        a.btn.btn--green.btn--small(href=`/tour/${tour.slug}`) Details
-
-
+block content
+    - const isMyTours = title === 'My Tours'
+    main#main-content
+        if !isMyTours
+            section.hero.shell(aria-labelledby='hero-title')
+                .hero__copy
+                    p.eyebrow
+                        span.eyebrow__line
+                        | Take the scenic route
+                    h1#hero-title Life is out there.
+                        br
+                        em Go find it.
+                    p.hero__description Trade your everyday for a little extraordinary. Find small-group adventures that bring you closer to nature, and a little closer to yourself.
+                    .hero__actions
+                        a.btn.btn--green(href='#tours') Find your adventure
+                            span(aria-hidden='true') ↗
+                        a.text-link(href='#our-way') A different way to travel
+                    .hero__note
+                        .hero__note-mark(aria-hidden='true') ✳
+                        p Less scrolling. More exploring.
+                            span Your next chapter starts outside.
+                .hero__visual
+                    img.hero__image(src='/img/tours/tour-3-cover.jpg' alt='A mountain landscape waiting to be explored' width='1100' height='900' fetchpriority='high')
+                    .hero__image-shade
+                    span.hero__stamp(aria-hidden='true') GET LOST.
+                        br
+                        | FIND MORE.
+                    .hero__caption
+                        span A change of scenery
+                        strong A whole new perspective.
+                    a.hero__round-link(href='#tours' aria-label='Explore our adventures') ↗
+            .journey-strip
+                .shell.journey-strip__inner
+                    span Small groups. Big experiences.
+                    span(aria-hidden='true') ✳
+                    span Real places. Lasting memories.
+                    span(aria-hidden='true') ✳
+                    span Find your own Raahsta.
+        section.tour-list.shell#tours(aria-labelledby='tours-title')
+            .section-heading
+                div
+                    p.eyebrow= isMyTours ? 'Your next chapter' : 'Good places. Great stories.'
+                    h1#tours-title= isMyTours ? 'Your journeys, all here.' : 'Where will you go next?'
+                p.section-heading__note= isMyTours ? 'The adventures you have booked, ready when you are.' : 'A change of pace, a fresh perspective. There’s a trail for you.'
+            if tours.length
+                form.tour-filters#tour-filters(role='search')
+                    .search-field
+                        +icon('map-pin')
+                        label.sr-only(for='tour-search') Search by tour name or destination
+                        input#tour-search(type='search' placeholder='A place, a trail, a new adventure…' autocomplete='off')
+                    .filter-field
+                        label(for='tour-difficulty') Your pace
+                        select#tour-difficulty
+                            option(value='all') All adventures
+                            option(value='easy') Easy going
+                            option(value='medium') A little challenge
+                            option(value='difficult') Bring it on
+                    .filter-field
+                        label(for='tour-duration') Time away
+                        select#tour-duration
+                            option(value='all') Any duration
+                            option(value='short') Up to 7 days
+                            option(value='long') More than 7 days
+                    button.btn.btn--green(type='submit') Explore
+                .listing-meta
+                    p#tour-count(role='status' aria-live='polite') #{tours.length} adventures to discover
+                    button.reset-filters(type='button') Reset filters
+                .card-container
+                    each tour in tours
+                        article.card(data-tour-search=`${tour.name} ${(tour.startLocation && tour.startLocation.description) || ''}` data-difficulty=tour.difficulty data-duration=tour.duration)
+                            a.card__picture(href=`/tour/${tour.slug}` tabindex='-1' aria-hidden='true')
+                                img.card__picture-img(src=`/img/tours/${tour.imageCover}` alt='' loading='lazy' width='700' height='460')
+                                span.card__badge= `${tour.duration} days of discovery`
+                                span.card__image-arrow(aria-hidden='true') ↗
+                            .card__details
+                                .card__location
+                                    +icon('map-pin')
+                                    span= (tour.startLocation && tour.startLocation.description) || 'An extraordinary destination'
+                                h2.card__title
+                                    a(href=`/tour/${tour.slug}`)= tour.name
+                                p.card__text= tour.summary
+                                .card__data-row
+                                    span
+                                        +icon('trending-up')
+                                        = tour.difficulty
+                                    span
+                                        +icon('users')
+                                        | Up to #{tour.maxGroupSize}
+                                .card__footer
+                                    p.card__price
+                                        +price(tour.price)
+                                        small / person
+                                    .card__ratings
+                                        span.rating-star(aria-hidden='true') ★
+                                        strong= tour.ratingsAverage
+                                        span (#{tour.ratingsQuantity})
+                .empty-state#filter-empty(hidden)
+                    span.empty-state__icon(aria-hidden='true') ↗
+                    h2 A different path, perhaps?
+                    p No adventures match those filters. Try another destination or pace.
+                    button.btn.btn--green.reset-filters(type='button') See all adventures
+            else
+                .empty-state
+                    span.empty-state__icon(aria-hidden='true') ↗
+                    h2= isMyTours ? 'Your first adventure is waiting.' : 'New adventures are on the horizon.'
+                    p= isMyTours ? 'Find a place that calls to you. Your booked tours will appear here.' : 'Check back soon for more places to explore.'
+                    if isMyTours
+                        a.btn.btn--green(href='/#tours') Explore tours
+        if !isMyTours
+            section.our-way#our-way
+                .shell.our-way__grid
+                    .our-way__intro
+                        p.eyebrow The Raahsta way
+                        h2 Go somewhere.
+                            br
+                            em Feel something.
+                        p We believe the best souvenirs aren’t things. They’re the people you meet, the views you earn, and the stories you bring home.
+                    .way-card
+                        span.way-card__number 01 / THE PEOPLE
+                        +icon('users')
+                        h3 A small group. A shared story.
+                        p Travel with fellow explorers and guides who make every place feel a little more personal.
+                    .way-card
+                        span.way-card__number 02 / THE PLACES
+                        +icon('map')
+                        h3 More fresh air. Less ordinary.
+                        p From quiet coastlines to mountain trails, make room for the places you’ve been dreaming about.

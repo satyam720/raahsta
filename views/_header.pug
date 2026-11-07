@@ -1,15 +1,24 @@
 header.header
-    nav.nav.nav--tours
-        a.nav__el(href='/') All tours
-    .header__logo  
-        a(href='/' aria-label='Raahsta home')
-            img(src='/img/raahsta-white.svg' alt='Raahsta logo')
-    nav.nav.nav--user   
-        if user
-            a.nav__el.nav__el--logout(href='#') Log out
-            a.nav__el(href='/me')
-                img.nav__user-img(src=`/img/users/${user.photo}`, alt=`Photo of ${user.name}`)
-                span= user.name.split(' ')[0]
-        else
-            a.nav__el(href='/login') Log in
-            a.nav__el.nav__el--cta(href='/signup') Sign up
+    .header__inner.shell
+        a.brand(href='/' aria-label='Raahsta home')
+            +brand
+        nav.header__nav#main-navigation(aria-label='Main navigation')
+            a.nav-link(href='/#tours') Explore tours
+            a.nav-link(href='/#our-way') The Raahsta way
+            if user
+                a.nav-link(href='/my-tours') My journeys
+            else
+                a.nav-link(href='/login') Log in
+        .header__actions
+            button.theme-toggle(type='button' aria-label='Switch color theme' title='Switch color theme')
+                span.theme-toggle__sun(aria-hidden='true') ☀
+                span.theme-toggle__moon(aria-hidden='true') ☾
+            if user
+                a.profile-link(href='/me' aria-label='Your account')
+                    img.nav__user-img(src=`/img/users/${user.photo}` alt='' width='36' height='36')
+                    span.profile-link__name= user.name.split(' ')[0]
+            else
+                a.btn.btn--green.btn--small.header__signup(href='/signup') Start exploring
+            button.menu-toggle(type='button' aria-expanded='false' aria-controls='main-navigation' aria-label='Open navigation')
+                span
+                span

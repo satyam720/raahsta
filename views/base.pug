@@ -1,24 +1,22 @@
+include _ui
 doctype html
-html
+html(lang='en')
     head
-        block head    
+        block head
             meta(charset='UTF-8')
             meta(name='viewport' content='width=device-width, initial-scale=1.0')
+            meta(name='description' content='Find your way to somewhere new. Discover small-group adventures, beautiful places, and your next Raahsta journey.')
+            meta(name='color-scheme' content='light dark')
+            script(src='/js/theme-init.js')
+            link(rel='icon' type='image/png' href='/img/favicon.png')
+            link(rel='preconnect' href='https://fonts.googleapis.com')
+            link(rel='preconnect' href='https://fonts.gstatic.com' crossorigin)
+            link(rel='stylesheet' href='https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap')
             link(rel='stylesheet' href='/css/style.css')
-            link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
-            link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700')
-            title Raahsta | #{title}
+            title #{title || 'Find your next adventure'} | Raahsta
     body
-        //- Header
+        a.skip-link(href='#main-content') Skip to content
         include _header
-
-        //- Content
-        block content 
-            h1 This is a placeholder heading
-
-        //- Footer
+        block content
         include _footer
-        //- script(src='https://cdn.jsdelivr.net/npm/axios@1.21.0/dist/axios.min.js')
-        //- script(src='/js/mapbox.js')
-        //- script(src='/js/login.js')
         script(type='module' src='/build/bundle.js')

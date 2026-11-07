@@ -38,12 +38,8 @@
     });
 
     map.fitBounds(bounds, {
-      padding: {
-        top: 200,
-        bottom: 150,
-        left: 100,
-        right: 100,
-      },
+      padding: mapContainer.clientWidth < 600 ? 40 : 70,
+      maxZoom: 12,
     });
   };
 

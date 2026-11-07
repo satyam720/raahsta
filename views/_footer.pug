@@ -1,10 +1,19 @@
-.footer 
-    .footer__logo 
-        img(src='/img/raahsta-green.svg' alt='Raahsta logo')
-    ul.footer__nav
-        li: a(href='#') About us
-        li: a(href='#') Download apps
-        li: a(href='#') Become a guide
-        li: a(href='#') Careers
-        li: a(href='#') Contact
-    p.footer__copyright &copy; by Satyam.
+footer.footer#footer
+    .shell
+        .footer__top
+            div
+                a.brand(href='/' aria-label='Raahsta home')
+                    +brand
+                p.footer__tagline A little further from ordinary.
+            nav.footer__nav(aria-label='Footer navigation')
+                a(href='/#tours') Find an adventure
+                a(href='/#our-way') Our way of travelling
+                if user
+                    a(href='/my-tours') My journeys
+                    a(href='/me') Your account
+                else
+                    a(href='/signup') Join Raahsta
+                    a(href='/login') Log in
+        .footer__bottom
+            p &copy; #{new Date().getFullYear()} Raahsta. Built by Satyam Pandey.
+            span Made for the journey, not just the destination.

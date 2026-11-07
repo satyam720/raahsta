@@ -1,22 +1,35 @@
 extends base
 
 block content
-    main.main
-        .signup-form
-            h2.heading-secondary.ma-bt-lg Register As a New User!
-            form.form#userSignUp
-                .form__group
-                    label.form__label(for='email') Email address
-                    input#email.form__input(type='email', placeholder='you@example.com', required)
-                .form__group.ma-bt-md
-                    label.form__label(for='name') Name
-                    input#name.form__input(type='text', placeholder='John Doe', required)
-                .form__group.ma-bt-md
-                    label.form__label(for='password') Password
-                    input#password.form__input(type='password', placeholder='••••••••', required, minlength='8')
-                .form__group.ma-bt-md
-                    label.form__label(for='confirmpassword') Confirm Password
-                    input#confirmpassword.form__input(type='password', placeholder='••••••••', required, minlength='8')
-                .form__group
-                    button.btn.btn--green(type='submit') Sign up
-
+    main.auth-page.shell#main-content
+        .auth-story
+            img(src='/img/tours/tour-3-cover.jpg' alt='Mountains and a world of possibilities' width='900' height='1100')
+            .auth-story__copy
+                p.eyebrow Follow your curiosity.
+                h1 More places.
+                    br
+                    em More you.
+                p Your next chapter starts with a little adventure.
+        .auth-panel
+            .signup-form
+                p.eyebrow Find your Raahsta
+                h2 A world of possibility.
+                p.form-intro Create an account. Leave ordinary behind.
+                form.form#userSignUp
+                    .form__group
+                        label.form__label(for='name') Your name
+                        input#name.form__input(type='text' placeholder='What should we call you?' autocomplete='name' required)
+                    .form__group
+                        label.form__label(for='email') Email address
+                        input#email.form__input(type='email' placeholder='you@example.com' autocomplete='email' required)
+                    .form__group
+                        label.form__label(for='password') Password
+                        input#password.form__input(type='password' placeholder='At least 8 characters' autocomplete='new-password' required minlength='8' aria-describedby='password-hint')
+                        small.form-hint#password-hint Make it memorable for you, hard to guess for others.
+                    .form__group
+                        label.form__label(for='confirmpassword') Confirm password
+                        input#confirmpassword.form__input(type='password' placeholder='One more time' autocomplete='new-password' required minlength='8')
+                    button.btn.btn--green.btn--full(type='submit') Sign up
+                p.auth-switch Already part of the journey?
+                    | &nbsp;
+                    a(href='/login') Log in

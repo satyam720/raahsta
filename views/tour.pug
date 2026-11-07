@@ -1,88 +1,113 @@
-extends base           
-
+extends base
 include _reviewCard
 
 block append head
-    link(href='https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.css', rel='stylesheet')
+    link(href='https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.css' rel='stylesheet')
     script(src='https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.js')
     script(src='https://checkout.razorpay.com/v1/checkout.js')
-mixin overViewBox(label, text, icon)
+
+mixin fact(label, text, symbol)
     .overview-box__detail
-        svg.overview-box__icon
-            use(xlink:href=`/img/icons.svg#icon-${icon}`)
+        +icon(symbol)
         span.overview-box__label= label
-        span.overview-box__text= text
+        strong.overview-box__text= text
 
 block content
-    section.section-header
-        .header__hero
-            .header__hero-overlay &nbsp;
-            img.header__hero-img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
-
-        .heading-box
-            h1.heading-primary
-                span= `${tour.name} tour`
-            .heading-box__group
-                .heading-box__detail
-                    svg.heading-box__icon
-                        use(xlink:href='/img/icons.svg#icon-clock')
-                    span.heading-box__text= `${tour.duration} days`
-                .heading-box__detail
-                    svg.heading-box__icon
-                        use(xlink:href='/img/icons.svg#icon-map-pin')
-                    span.heading-box__text= tour.startLocation.description
-
-    section.section-description
-        .overview-box
-            div
-                .overview-box__group
-                    h2.heading-secondary.ma-bt-lg Quick facts
-                    - const date = tour.startDates[0].toLocaleString('en-us', {month: 'long', year: 'numeric'})
-                    +overViewBox('Next Date', date, 'calendar')
-                    +overViewBox('difficulty', tour.difficulty, 'trending-up')
-                    +overViewBox('Participants', `${tour.maxGroupSize} people`, 'user')
-                    +overViewBox('Rating', `${tour.ratingsAverage} / 5`, 'star')
-
-                .overview-box__group
-                    h2.heading-secondary.ma-bt-lg Your tour guides
-                    each guide in tour.guides 
-                        .overview-box__detail
-                            img.overview-box__img(src=`/img/users/${guide.photo}`, alt=`${guide.name}`)
-                            - if (guide.role === 'lead-guide')
-                                span.overview-box__label Lead Guide
-                            if (guide.role === 'guide')
-                                span.overview-box__label Guide
-                            span.overview-box__text= guide.name
-
-        .description-box
-            h2.heading-secondary.ma-bt-lg= `About ${tour.name}`
-            - const paragraphs = tour.description.split('\n');
-            each p in paragraphs 
-                p.description__text= p
-
-    section.section-pictures
-        each img, i in tour.images 
-            .picture-box
-                img.picture-box__img(src=`/img/tours/${img}` alt=`${tour.name} ${i+1}`, class = `picture-box__img--${i+1}`)
-
-    section.section-map
-        #map(data-locations=`${JSON.stringify(tour.locations)}` data-mapbox-token=mapboxAccessToken)
-
-    section.section-reviews
-        .reviews
-            each review in tour.reviews
-                +reviewCard(review)
-
-    section.section-cta
-        .cta
-            .cta__img.cta__img--logo
-                img(src='/img/raahsta-mark-white.svg' alt='Raahsta logo')
-            img.cta__img.cta__img--1(src=`/img/tours/${tour.images[1]}` alt='Tour Pic 1')
-            img.cta__img.cta__img--2(src=`/img/tours/${tour.images[2]}` alt='Tour Pic 2')
-            .cta__content
-                h2.heading-secondary What are you waiting for?
-                p.cta__text= `${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!` 
+    main.tour-page#main-content
+        section.tour-hero.shell(aria-labelledby='tour-title')
+            a.breadcrumb(href='/#tours') ← All adventures
+            .tour-title-row
+                div
+                    p.eyebrow
+                        +icon('map-pin')
+                        = (tour.startLocation && tour.startLocation.description) || 'The world is waiting'
+                    h1#tour-title= tour.name
+                .tour-rating
+                    span.rating-star(aria-hidden='true') ★
+                    strong= tour.ratingsAverage
+                    span #{tour.ratingsQuantity} reviews
+            .tour-hero__image
+                img(src=`/img/tours/${tour.imageCover}` alt=tour.name width='1600' height='800' fetchpriority='high')
+                .tour-hero__caption
+                    span #{tour.duration} days. A world of possibility.
+                    span.tour-hero__pace= `${tour.difficulty} pace`
+        .tour-layout.shell
+            .tour-story
+                section.tour-about
+                    p.eyebrow This is your kind of escape
+                    h2 A little about the adventure.
+                    p.tour-summary= tour.summary
+                    each paragraph in (tour.description || '').split('\n')
+                        p.description__text= paragraph
+                section.quick-facts(aria-labelledby='facts-title')
+                    h2#facts-title The good-to-knows.
+                    .facts-grid
+                        +fact('Duration', `${tour.duration} days`, 'clock')
+                        +fact('Your pace', tour.difficulty, 'trending-up')
+                        +fact('Group size', `Up to ${tour.maxGroupSize}`, 'users')
+                        - const nextDate = tour.startDates && tour.startDates[0] ? new Date(tour.startDates[0]).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'To be announced'
+                        +fact('Departure', nextDate, 'calendar')
+                if tour.guides && tour.guides.length
+                    section.guides-section
+                        p.eyebrow Good company along the way
+                        h2 Meet your guides.
+                        .guides-grid
+                            each guide in tour.guides
+                                .guide
+                                    img(src=`/img/users/${guide.photo}` alt=guide.name width='56' height='56' loading='lazy')
+                                    div
+                                        strong= guide.name
+                                        span= guide.role === 'lead-guide' ? 'Lead guide' : 'Tour guide'
+            aside.booking-panel(aria-labelledby='booking-title')
+                .booking-panel__top
+                    p.eyebrow Your next great story
+                    h2#booking-title Let’s make it happen.
+                    p.booking-price
+                        +price(tour.price)
+                        span / person
+                .booking-panel__details
+                    p
+                        +icon('clock')
+                        | #{tour.duration} days to remember
+                    p
+                        +icon('users')
+                        | A group of up to #{tour.maxGroupSize}
+                    p
+                        +icon('map-pin')
+                        = (tour.startLocation && tour.startLocation.description) || 'An unforgettable place'
                 if user
-                    button.btn.btn--green.span-all-rows#book-tour(data-tour-id=`${tour.id}`) Book tour now!
+                    button.btn.btn--green.btn--full#book-tour(type='button' data-tour-id=tour.id) Book this adventure ↗
                 else
-                    a.btn.btn--green.span-all-rows(href='/login') Log in to Book tour
+                    a.btn.btn--green.btn--full(href='/login') Log in to book ↗
+                p.booking-panel__note Your journey starts with one small step.
+                .booking-panel__brand
+                    img(src='/img/raahsta-mark.svg' alt='' width='36' height='36')
+                    span Find your way to somewhere new.
+        if tour.images && tour.images.length
+            section.gallery.shell(aria-label='A glimpse of your adventure')
+                .section-heading
+                    div
+                        p.eyebrow A little inspiration
+                        h2 Picture yourself here.
+                .gallery__grid
+                    each image, i in tour.images
+                        img(src=`/img/tours/${image}` alt=`${tour.name}, view ${i + 1}` width='800' height='650' loading='lazy')
+        if tour.locations && tour.locations.length && mapboxAccessToken
+            section.map-section.shell(aria-labelledby='map-title')
+                .section-heading
+                    div
+                        p.eyebrow Follow the journey
+                        h2#map-title Every stop, a new story.
+                #map(data-locations=JSON.stringify(tour.locations) data-mapbox-token=mapboxAccessToken aria-label='Tour route map')
+        section.section-reviews.shell(aria-labelledby='reviews-title')
+            .section-heading
+                div
+                    p.eyebrow From one explorer to another
+                    h2#reviews-title Stories from the trail.
+                p.section-heading__note ★ #{tour.ratingsAverage} / 5 · #{tour.ratingsQuantity} reviews
+            .reviews
+                if tour.reviews && tour.reviews.length
+                    each review in tour.reviews
+                        +reviewCard(review)
+                else
+                    p.empty-review A fresh adventure, waiting for its first story.

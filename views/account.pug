@@ -1,58 +1,68 @@
 extends base
 
-mixin navItem(link, text, icon, acive)
-    li(class=`${active ? '.side-nav--active' : ''}`)
-        a(href=`${link}`)
-            svg
-                use(xlink:href=`img/icons.svg#icon-${icon}`)
-            | #{text}
-
 block content
-    main.main
+    main.account-page.shell#main-content
+        .section-heading
+            div
+                p.eyebrow Your own little corner
+                h1 Hello, #{user.name.split(' ')[0]}.
+            p.section-heading__note A few details, so every journey feels like you.
         .user-view
-            nav.user-view__menu
-                ul.side-nav
-                    +navItem('#', 'Settings', 'settings', active)
-                    +navItem('/my-tours', 'My bookings', 'briefcase')
-                    +navItem('#', 'My reviews', 'star')
-                    +navItem('#', 'Billing', 'credit-card')
-                - if (user.role == 'admin')
-                    .admin-nav
-                        h5.admin-nav__heading Admin
-                        ul.side-nav
-                            +navItem('#', 'Manage tours', 'map')
-                            +navItem('#', 'Manage users', 'users')
-                            +navItem('#', 'Manage reviews', 'star')
-                            +navItem('#', 'Manage Bookings', 'briefcase')
-
+            aside.user-view__menu
+                .account-profile
+                    img(src=`/img/users/${user.photo}` alt=`${user.name}'s profile photo` width='80' height='80')
+                    h2= user.name
+                    p= user.email
+                    if user.role !== 'user'
+                        span.role-badge= user.role
+                nav(aria-label='Account navigation')
+                    ul.side-nav
+                        li.side-nav--active
+                            a(href='/me' aria-current='page')
+                                +icon('settings')
+                                | Account settings
+                        li
+                            a(href='/my-tours')
+                                +icon('briefcase')
+                                | My journeys
+                        li
+                            a(href='/#tours')
+                                +icon('map')
+                                | Find an adventure
+                button.account-logout.nav__el--logout(type='button') Log out of Raahsta ↗
             .user-view__content
-                .user-view__form-container
-                    h2.heading-secondary.ma-bt-md Your account settings
+                section.user-view__form-container(aria-labelledby='profile-title')
+                    p.eyebrow The essentials
+                    h2#profile-title Make yourself at home.
+                    p.form-intro Keep your details up to date for the journey ahead.
                     form.form.form-user-data
-                        .form__group
-                            label.form__label(for='name') Name
-                            input#name.form__input(type='text' value=`${user.name}`, required, name='name')
-                        .form__group.ma-bt-md
-                            label.form__label(for='email') Email address
-                            input#email.form__input(type='email' value=`${user.email}`, required, name='email')
                         .form__group.form__photo-upload
-                            img.form__user-photo(src=`img/users/${user.photo}` alt='User photo')
-                            input.form__upload(type='file', accept='image/*' id='photo' name='photo')
-                            label(for='photo') Choose new Photo
-                        .form__group.right
-                            button.btn.btn--small.btn--green.save-settings Save settings
-                .line &nbsp;
-                .user-view__form-container
-                    h2.heading-secondary.ma-bt-md Password change
+                            img.form__user-photo(src=`/img/users/${user.photo}` alt='Your current photo' width='72' height='72')
+                            div
+                                input.form__upload(type='file' accept='image/*' id='photo' name='photo')
+                                label.upload-label(for='photo') Choose a new photo
+                                small.form-hint A little face to put to your name.
+                        .form-grid
+                            .form__group
+                                label.form__label(for='name') Your name
+                                input#name.form__input(type='text' value=user.name required name='name' autocomplete='name')
+                            .form__group
+                                label.form__label(for='email') Email address
+                                input#email.form__input(type='email' value=user.email required name='email' autocomplete='email')
+                        button.btn.btn--green.save-settings(type='submit') Save changes
+                section.user-view__form-container(aria-labelledby='security-title')
+                    p.eyebrow A little peace of mind
+                    h2#security-title Keep your account secure.
+                    p.form-intro Choose a strong password that’s just for Raahsta.
                     form.form.form-user-password
                         .form__group
                             label.form__label(for='password-current') Current password
-                            input#password-current.form__input(type='password' placeholder='••••••••', required, minlength='8')
-                        .form__group
-                            label.form__label(for='password') New password
-                            input#password.form__input(type='password' placeholder='••••••••', required, minlength='8')
-                        .form__group.ma-bt-lg
-                            label.form__label(for='password-confirm') Confirm password
-                            input#password-confirm.form__input(type='password' placeholder='••••••••', required, minlength='8')
-                        .form__group.right
-                            button.btn.btn--small.btn--green.btn--save-password Save password
+                            input#password-current.form__input(type='password' placeholder='Your current password' required minlength='8' autocomplete='current-password')
+                        .form-grid
+                            .form__group
+                                label.form__label(for='password') New password
+                                input#password.form__input(type='password' placeholder='At least 8 characters' required minlength='8' autocomplete='new-password')
+                            .form__group
+                                label.form__label(for='password-confirm') Confirm new password
+                                input#password-confirm.form__input(type='password' placeholder='One more time' required minlength='8' autocomplete='new-password')
+                        button.btn.btn--green.btn--save-password(type='submit') Save password

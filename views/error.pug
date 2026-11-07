@@ -1,9 +1,10 @@
 extends base
 
 block content
-    main.main
-    .error
-        .error__title
-        h2.heading-secondary.heading-secondary--error= title   
-        h2.error__emoji 😢 🤯
-        .error__msg= msg
+    main.shell.error-page#main-content
+        .empty-state
+            span.empty-state__icon(aria-hidden='true') ↗
+            p.eyebrow A little detour
+            h1= title || 'We’ve wandered off the path.'
+            p= msg || 'Something went wrong. Please try again in a moment.'
+            a.btn.btn--green(href='/') Back to exploring

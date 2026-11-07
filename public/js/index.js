@@ -5,6 +5,9 @@ import { initMap } from './mapbox.js';
 import { updateSettings } from './updateSetting.js';
 import { initClientRzrPay, requestOrder } from './razorPay.js';
 import { signup } from './signup.js';
+import { initInterface } from './interface.js';
+
+initInterface();
 
 //DOM elems
 const mapContainer = document.getElementById('map');
@@ -42,7 +45,8 @@ if (userDataForm) {
     const form = new FormData();
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
-    form.append('photo', document.getElementById('photo').files[0]);
+    const photo = document.getElementById('photo').files[0];
+    if (photo) form.append('photo', photo);
     await updateSettings(form, 'data');
     location.reload(true);
   });

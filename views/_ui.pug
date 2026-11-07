@@ -1,0 +1,10 @@
+mixin icon(name, extraClass)
+    svg.icon(class=extraClass aria-hidden='true' focusable='false')
+        use(href=`/img/icons.svg#icon-${name}`)
+
+mixin price(amount)
+    = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount)
+
+mixin brand
+    img.brand__light(src='/img/raahsta-green.svg' alt='Raahsta' width='450' height='104')
+    img.brand__dark(src='/img/raahsta-white.svg' alt='Raahsta' width='450' height='104')
