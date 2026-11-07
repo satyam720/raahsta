@@ -91,14 +91,14 @@ try {
   await navigate('/login');
   assert.equal(await evaluate("document.documentElement.dataset.theme"), 'dark');
   await evaluate("document.querySelector('.theme-toggle').click()");
-  const routes = ['/', '/tour/the-sea-explorer', '/login', '/signup', '/me', '/my-tours', '/error'];
+  const routes = ['/', '/tour/the-rishikesh-river-escape', '/login', '/signup', '/me', '/my-tours', '/error'];
   for (const width of [1440, 768, 390, 320]) {
     await viewport(width);
     for (const route of routes) {
       await navigate(route);
       assert.equal(await evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), true, `Horizontal overflow at ${width}px on ${route}`);
       if (route === '/' && width === 390) await screenshot('raahsta-mobile');
-      if (route === '/tour/the-sea-explorer' && width === 1440) await screenshot('raahsta-tour');
+      if (route === '/tour/the-rishikesh-river-escape' && width === 1440) await screenshot('raahsta-tour');
       if (route === '/signup' && width === 390) await screenshot('raahsta-signup-mobile');
     }
   }

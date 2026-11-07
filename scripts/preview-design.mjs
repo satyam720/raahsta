@@ -10,8 +10,8 @@ export function createDesignPreview() {
   for (const tour of tours) {
     tour.id = tour._id;
     tour.slug = tour.name.toLowerCase().replaceAll(' ', '-');
-    tour.guides = [{ name: 'Your Raahsta guide', photo: 'user-19.jpg', role: 'lead-guide' }];
-    tour.reviews = [{ user: { name: 'A fellow explorer', photo: 'user-7.jpg' }, rating: 5, review: 'A beautiful way to slow down, get outside, and discover somewhere new.' }];
+    tour.guides = [{ name: 'Aditi Sharma', photo: 'india-user-2.png', role: 'lead-guide' }];
+    tour.reviews = [{ user: { name: 'Aarav Patel', photo: 'india-user-8.png' }, rating: 5, review: 'A beautiful way to slow down, get outside, and discover somewhere new.' }];
   }
   const user = { name: 'Satyam Pandey', email: 'satyam@example.com', photo: 'default.jpg', role: 'user' };
   const app = express();
