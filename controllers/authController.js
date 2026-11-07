@@ -45,12 +45,15 @@ const signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    passwordChangedAt: req.body.passwordChangedAt,
-    role: req.body.role,
   });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
-  await new Email(newUser, url).sendWelcome();
+  try {
+    await new Email(newUser, url).sendWelcome();
+  } catch (error) {
+    // The account is already saved; welcome-email delivery must not prevent login.
+    console.error('Welcome email delivery failed', { code: error.code || 'EMAIL_DELIVERY_FAILED' });
+  }
   createSendToken(newUser, 201, res);
 });
 

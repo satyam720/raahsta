@@ -38,6 +38,13 @@ export const getLoginForm = (req, res) => {
   });
 };
 
+export const getSignupForm = (req, res) => {
+  res.status(200).render('signup', {
+    title: 'Register for a new acount',
+  });
+};
+
+
 export const getAccount = (req, res) => {
   res.status(200).render('account', {
     title: 'Your Account',

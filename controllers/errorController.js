@@ -63,8 +63,10 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleDuplicateFieldsDB = (err) => {
-  const key = err.errorResponse.keyValue.name;
-  const message = `Duplicate field value: ${key}. Please use another value`;
+  const fields = Object.keys(err.keyValue || err.errorResponse?.keyValue || err.keyPattern || {});
+  const message = fields.includes('email')
+    ? 'An account with this email already exists. Please log in or use another email.'
+    : 'This value is already in use. Please use another value.';
   return new AppError(message, 400);
 };
 
